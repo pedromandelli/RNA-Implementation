@@ -14,125 +14,105 @@ class NeuralNetwork:
     predição.
     """
     
-    def __init__(self, layer_sizes, init_method='xavier', activation='relu'):
+    def __init__(self, layer_sizes, activation_functions=None):
         """
         Inicializa uma rede neural com a arquitetura especificada.
         
         Args:
             layer_sizes (list): Lista contendo o número de neurônios em cada camada,
-                              incluindo camada de entrada e saída.
-                              Ex: [3, 4, 2, 1] representa uma rede com 3 entradas,
-                              2 camadas ocultas (4 e 2 neurônios) e 1 saída.
-            init_method (str): Método de inicialização dos pesos. Opções: 'xavier', 'he', 'random'.
-            activation (str): Função de ativação para as camadas ocultas. Opções: 'relu', 'sigmoid', 'linear'.
+                               incluindo camada de entrada e saída.
+            activation_functions (list, optional): Lista de funções de ativação para cada camada.
+                                                  Valores possíveis: 'sigmoid', 'relu', 'tanh'.
+                                                  Default é 'sigmoid' para todas as camadas ocultas.
         """
         self.layer_sizes = layer_sizes
         self.num_layers = len(layer_sizes)
-        self.activation = activation
         
-        # Verifica se a função de ativação está disponível
-        if activation not in ACTIVATION_FUNCTIONS:
-            raise ValueError(f"Função de ativação '{activation}' não implementada")
-        
-        # Obtém as funções de ativação e suas derivadas
-        self.activation_func, self.activation_derivative = ACTIVATION_FUNCTIONS[activation]
-        
-        # Dicionários para armazenar pesos e biases
+        # Inicializar pesos e biases
         self.weights = {}
         self.biases = {}
-        
-        # Dicionário para armazenar valores intermediários durante a propagação
-        # (necessário para o backpropagation)
         self.cache = {}
         
-        # Inicializa os pesos e biases
-        self.initialize_weights(method=init_method)
-    
-    def initialize_weights(self, method='xavier'):
-        """
-        Inicializa os pesos da rede neural.
-        
-        Args:
-            method (str): Método de inicialização. Opções: 'xavier', 'he', 'random'
-            
-        Returns:
-            tuple: (weights, biases) - Dicionários com os pesos e biases inicializados
-        """
+        # Inicialização de Xavier para os pesos
         for l in range(1, self.num_layers):
-            if method == 'xavier':
-                # Inicialização Xavier/Glorot
-                # Boa para funções de ativação como tanh e sigmoid
-                bound = np.sqrt(6) / np.sqrt(self.layer_sizes[l-1] + self.layer_sizes[l])
-                self.weights[l] = np.random.uniform(-bound, bound, (self.layer_sizes[l], self.layer_sizes[l-1]))
-            elif method == 'he':
-                # Inicialização He
-                # Boa para funções de ativação ReLU
-                self.weights[l] = np.random.randn(self.layer_sizes[l], self.layer_sizes[l-1]) * np.sqrt(2 / self.layer_sizes[l-1])
-            else:
-                # Inicialização aleatória simples
-                self.weights[l] = np.random.randn(self.layer_sizes[l], self.layer_sizes[l-1]) * 0.01
-            
-            # Inicializar biases com zeros
-            self.biases[l] = np.zeros((self.layer_sizes[l], 1))
+            # Inicialização de Xavier: adequada para funções de ativação sigmoidais
+            self.weights[l] = np.random.randn(layer_sizes[l], layer_sizes[l-1]) * np.sqrt(1 / layer_sizes[l-1])
+            self.biases[l] = np.zeros((1, layer_sizes[l]))
         
-        return self.weights, self.biases
+        # Configurar funções de ativação
+        if activation_functions is None:
+            self.activation_functions = ['sigmoid'] * (self.num_layers - 2) + ['linear']
+        else:
+            self.activation_functions = activation_functions
     
-    def forward(self, X):
+    def forward(self, X, output_activation=None):
         """
         Realiza a propagação para frente.
         
         Args:
             X (numpy.ndarray): Dados de entrada, shape (n_samples, n_features)
+            output_activation (str, optional): Ativação da camada de saída.
+                Se None, usa o valor definido em self.activation_functions.
                 
         Returns:
             numpy.ndarray: Saída da rede neural
         """
-        # Garantir que X tenha o formato correto (n_samples, n_features)
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
-        
-        # Verificar se o número de features corresponde ao esperado
-        if X.shape[1] != self.layer_sizes[0]:
-            raise ValueError(f"Número de features ({X.shape[1]}) não corresponde ao esperado ({self.layer_sizes[0]})")
-        
-        # Armazenar a entrada no cache para backpropagation
         self.cache = {}
-        self.cache['A0'] = X
-        
-        # Propagar através de cada camada
-        A = X  # Ativação da camada de entrada
+        A = X
+        self.cache['A0'] = A
         
         for l in range(1, self.num_layers):
             # Calcular entrada ponderada (Z) para a camada l
-            Z = np.dot(A, self.weights[l].T) + self.biases[l].T
+            Z = np.dot(A, self.weights[l].T) + self.biases[l]
             
             # Armazenar Z no cache para backpropagation
             self.cache[f'Z{l}'] = Z
             
+            # Determinar a função de ativação para esta camada
+            activation = self.activation_functions[l-1]
+            if l == self.num_layers - 1 and output_activation is not None:
+                activation = output_activation
+            
             # Aplicar função de ativação
-            if l < self.num_layers - 1:  # Camadas ocultas
-                A = self.activation_func(Z)
-            else:  # Camada de saída (linear por enquanto)
+            if activation == 'sigmoid':
+                A = self._sigmoid(Z)
+            elif activation == 'relu':
+                A = self._relu(Z)
+            elif activation == 'tanh':
+                A = self._tanh(Z)
+            else:  # linear
                 A = Z
             
             # Armazenar ativação no cache
             self.cache[f'A{l}'] = A
         
-        # Retornar a ativação da última camada
         return A
     
-    def predict(self, X):
+    def predict(self, X, output_activation=None):
         """
         Realiza predições usando a rede neural treinada.
         
         Args:
             X (numpy.ndarray): Dados de entrada, shape (n_samples, n_features)
-            
+            output_activation (str, optional): Ativação da camada de saída.
+                
         Returns:
             numpy.ndarray: Predições da rede neural
         """
-        # Utiliza o método forward
-        return self.forward(X)
+        return self.forward(X, output_activation)
+    
+    # Implementações básicas das funções de ativação - serão substituídas por classes dedicadas
+    def _sigmoid(self, Z):
+        """Implementação temporária da função sigmoid"""
+        return 1 / (1 + np.exp(-Z))
+    
+    def _relu(self, Z):
+        """Implementação temporária da função ReLU"""
+        return np.maximum(0, Z)
+    
+    def _tanh(self, Z):
+        """Implementação temporária da função tanh"""
+        return np.tanh(Z)
     
     def fit(self, X, y, epochs=1000, learning_rate=0.01, batch_size=None, verbose=True):
         """
@@ -154,4 +134,4 @@ class NeuralNetwork:
     
     def __str__(self):
         """Retorna uma representação em string da arquitetura da rede."""
-        return f"NeuralNetwork(layers={self.layer_sizes}, activation={self.activation})" 
+        return f"NeuralNetwork(layers={self.layer_sizes}, activation={self.activation_functions})" 

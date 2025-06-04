@@ -1,56 +1,97 @@
 # Implementação de Rede Neural Artificial
 
-Este projeto implementa uma Rede Neural Artificial (RNA) em Python, utilizando os conceitos teóricos de redes neurais e recursos de baixo nível da linguagem, sem depender de bibliotecas de alto nível para a implementação da rede.
+Este projeto implementa uma Rede Neural Artificial (RNA) em Python, utilizando apenas bibliotecas de baixo nível como NumPy para operações matemáticas.
+
+## Visão Geral
+
+O objetivo deste projeto é implementar uma RNA seguindo os princípios matemáticos fundamentais de funcionamento de uma rede neural, incluindo sua estrutura e métodos de treinamento, sem utilizar bibliotecas de alto nível de aprendizado de máquina.
+
+## Componentes Principais
+
+- **Estrutura da Rede Neural**: Implementação de uma rede neural multicamadas com número arbitrário de camadas e neurônios
+- **Funções de Ativação**: Implementação de 3 funções de ativação (Sigmoid, ReLU, Tanh)
+- **Funções de Perda**: Implementação de 2 funções de perda (MSE, Binary Cross-Entropy)
+- **Algoritmo de Retropropagação**: Implementação do algoritmo de backpropagation
+- **Otimização**: Implementação do algoritmo de gradiente descendente e suas variações
 
 ## Estrutura do Projeto
 
 ```
-.
-├── src/
-│   └── rna/            # Pacote principal da rede neural
-│       ├── __init__.py # Inicializador do pacote
-│       └── network.py  # Implementação da classe NeuralNetwork
-├── tests/              # Testes unitários
-└── notebooks/          # Notebooks Jupyter para demonstração
+src/
+  ├── rna/                          # Código principal da RNA
+  │   ├── __init__.py               # Exporta classes principais
+  │   ├── network.py                # Classe principal da rede neural
+  │   ├── activation_functions/     # Implementações de funções de ativação
+  │   │   ├── __init__.py
+  │   │   ├── sigmoid.py
+  │   │   ├── relu.py
+  │   │   └── tanh.py
+  │   ├── loss_functions/           # Implementações de funções de perda
+  │   │   ├── __init__.py
+  │   │   ├── mse.py
+  │   │   └── binary_crossentropy.py
+  │   └── optimizers/               # Implementações de otimizadores
+  │       ├── __init__.py
+  │       ├── sgd.py
+  │       └── momentum.py
+  └── datasets/                    # Módulos para carregamento de datasets
+tests/                            # Testes unitários
+notebooks/                        # Notebooks Jupyter com exemplos de uso
 ```
 
-## Funcionalidades
+## Requisitos
 
-A implementação inclui:
+- Python 3.8+
+- NumPy
+- Pandas
+- Matplotlib
+- Scikit-learn (apenas para pré-processamento de dados e avaliação)
 
-- Estrutura da rede neural (camadas, pesos, biases)
-- Três funções de ativação: ReLU, Sigmoid e Softmax
-- Duas funções de perda: MSE e Cross-Entropy
-- Algoritmo de retropropagação (backpropagation)
-- Otimização por gradiente descendente
+## Instalação
 
-## Dependências
+```bash
+# Criar um ambiente virtual
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+# venv\Scripts\activate  # Windows
 
-O projeto utiliza apenas bibliotecas para operações de baixo nível:
-
-- NumPy: para operações matriciais e cálculos numéricos
-- Pandas: para manipulação de dados
-- Matplotlib: para visualização
+# Instalar dependências
+pip install -r requirements.txt
+```
 
 ## Uso Básico
 
 ```python
-from src.rna.network import NeuralNetwork
+from src.rna import NeuralNetwork
 
-# Criar uma rede com 3 entradas, 2 camadas ocultas (4 e 2 neurônios) e 1 saída
-model = NeuralNetwork([3, 4, 2, 1])
+# Criar uma rede neural com 2 entradas, 1 camada oculta com 3 neurônios e 1 saída
+nn = NeuralNetwork([2, 3, 1], activation_functions=['sigmoid', 'sigmoid'])
 
-# Treinar o modelo
-model.fit(X_train, y_train, epochs=1000, learning_rate=0.01)
+# Treinar a rede neural
+nn.fit(X_train, y_train, epochs=1000, learning_rate=0.01, loss_function='mse')
 
 # Fazer predições
-predictions = model.predict(X_test)
+predictions = nn.predict(X_test)
 ```
 
-## Equipe
+## Exemplos
 
-*A ser preenchido*
+Consulte os notebooks na pasta `notebooks/` para exemplos detalhados de:
+- Regressão
+- Classificação binária
+- Classificação multiclasse
+
+## Contribuições
+
+Este projeto foi desenvolvido como parte do trabalho final da disciplina de Machine Learning.
+
+## Autores
+
+- [Nome do Autor 1]
+- [Nome do Autor 2]
+- [Nome do Autor 3]
 
 ## Licença
 
-MIT 
+Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para mais detalhes. 
