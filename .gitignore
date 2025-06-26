@@ -34,7 +34,6 @@ wheels/
 
 # Notebooks
 .ipynb_checkpoints
-*.ipynb
 
 # IDEs e editores
 .idea/
