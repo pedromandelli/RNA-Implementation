@@ -44,3 +44,6 @@ wheels/
 *~
 .DS_Store
 Thumbs.db 
+# Task Magic e Cursor
+.ai/
+.cursor/
