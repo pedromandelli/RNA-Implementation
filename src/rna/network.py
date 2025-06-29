@@ -2,8 +2,8 @@
 Módulo principal para a implementação da Rede Neural Artificial.
 """
 import numpy as np
-from .activation_functions import Sigmoid, ReLU, Tanh
-from .loss_functions import MSE, BinaryCrossentropy
+from .activation_functions import Sigmoid, ReLU, Tanh, Softmax
+from .loss_functions import MSE, BinaryCrossentropy, CategoricalCrossentropy
 from .optimizers import SGD, Momentum
 
 
@@ -52,13 +52,15 @@ class NeuralNetwork:
             'sigmoid': Sigmoid,
             'relu': ReLU,
             'tanh': Tanh,
+            'softmax': Softmax,
             'linear': None  # Linear não precisa de classe específica
         }
         
         # Mapear as strings de função de perda para as classes correspondentes
         self.loss_map = {
             'mse': MSE,
-            'binary_crossentropy': BinaryCrossentropy
+            'binary_crossentropy': BinaryCrossentropy,
+            'categorical_crossentropy': CategoricalCrossentropy
         }
         
         # Mapear as strings de otimizador para as classes correspondentes
@@ -102,6 +104,8 @@ class NeuralNetwork:
                 A = self.activation_map['relu'].forward(Z)
             elif activation == 'tanh':
                 A = self.activation_map['tanh'].forward(Z)
+            elif activation == 'softmax':
+                A = self.activation_map['softmax'].forward(Z)
             else:  # linear
                 A = Z
             
@@ -163,6 +167,12 @@ class NeuralNetwork:
                 dZ = self.loss_map['binary_crossentropy'].backward_with_sigmoid(y, y_pred)
             else:
                 dZ = self.loss_map['binary_crossentropy'].backward(y, y_pred)
+        elif loss_function == 'categorical_crossentropy': 
+                if output_activation == 'softmax':
+                    # Para CCE com Softmax, a derivada se simplifica para y_pred - y
+                    dZ = self.loss_map['categorical_crossentropy'].backward_with_softmax(y, y_pred)
+                else:
+                    raise NotImplementedError("Categorical Crossentropy sem Softmax na saída não é diretamente suportado pela forma simplificada.")            
         else:
             raise ValueError(f"Função de perda '{loss_function}' não implementada")
         
@@ -291,6 +301,9 @@ class NeuralNetwork:
         Returns:
             dict: Histórico de treinamento
         """
+        if output_activation is None:
+            output_activation = self.activation_functions[-1]
+            
         history = {'loss': [], 'val_loss': []}
         m = X.shape[0]  # número de exemplos
         
@@ -363,6 +376,8 @@ class NeuralNetwork:
             return self.loss_map['mse'].forward(y, y_pred)
         elif loss_function == 'binary_crossentropy':
             return self.loss_map['binary_crossentropy'].forward(y, y_pred)
+        elif loss_function == 'categorical_crossentropy':
+            return self.loss_map['categorical_crossentropy'].forward(y, y_pred)
         else:
             raise ValueError(f"Função de perda '{loss_function}' não implementada")
     
