@@ -42,10 +42,25 @@ notebooks/                        # Notebooks Jupyter com exemplos de uso
 ## Requisitos
 
 - Python 3.8+
-- NumPy
-- Pandas
-- Matplotlib
-- Scikit-learn (apenas para pré-processamento de dados e avaliação)
+- Bibliotecas utilizadas:
+  - numpy==2.2.6
+  - pandas==2.3.0
+  - matplotlib==3.10.3
+  - seaborn==0.13.2
+  - pillow==11.2.1
+  - scikit-learn (apenas para pré-processamento e avaliação de modelos)
+  - contourpy==1.3.2
+  - cycler==0.12.1
+  - fonttools==4.58.4
+  - kiwisolver==1.4.8
+  - packaging==25.0
+  - pyparsing==3.2.3
+  - python-dateutil==2.9.0.post0
+  - pytz==2025.2
+  - tzdata==2025.2
+  - six==1.17.0
+
+
 
 ## Instalação
 
@@ -88,9 +103,9 @@ Este projeto foi desenvolvido como parte do trabalho final da disciplina de Mach
 
 ## Autores
 
-- [Nome do Autor 1]
-- [Nome do Autor 2]
-- [Nome do Autor 3]
+- [Pedro Mandelli]
+- [Guilherme Cassiano Ferreira Silva]
+- [Eduardo Caigar Dudel]
 
 ## Licença
 
