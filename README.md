@@ -92,10 +92,13 @@ predictions = nn.predict(X_test)
 
 ## Exemplos
 
-Consulte os notebooks na pasta `notebooks/` para exemplos detalhados de:
+Consulte os notebooks na pasta `notebooks/` ou no Colab para exemplos detalhados de:
 - Regressão
+  - https://colab.research.google.com/github/pedromandelli/RNA-Implementation/blob/main/notebooks/regressao/regressao_exemplo.ipynb
 - Classificação binária
+  - https://colab.research.google.com/github/pedromandelli/RNA-Implementation/blob/main/notebooks/classificacao_binaria/classificacao_binaria_exemplo.ipynb
 - Classificação multiclasse
+  - https://colab.research.google.com/github/pedromandelli/RNA-Implementation/blob/main/notebooks/classificacao_multiclasse/classificacao_multiclasse_exemplo.ipynb
 
 ## Contribuições
 
